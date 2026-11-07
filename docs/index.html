@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DSH Pro 0.1.3 发布说明</title>
+<meta name="description" content="DSH Pro 是基于 DSH Go 二次开发的手机端 DeepSeek Harness。0.1.3 公开测试版本的发布说明、安装方式与项目说明。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23F3F0E9'/%3E%3Ctext x='16' y='23' font-family='Georgia,serif' font-size='20' font-weight='600' text-anchor='middle' fill='%2315161A'%3ED%3C/text%3E%3C/svg%3E">
+<style>
+  :root {
+    --paper: #F3F0E9;
+    --paper-2: #E9E4D9;
+    --ink: #15161A;
+    --ink-soft: #43444B;
+    --muted: #78787F;
+    --rule: #D2CCBE;
+    --accent: #9C3A1E;
+    --accent-wash: #F5E8E1;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", "JetBrains Mono", "Cascadia Mono", Consolas, monospace;
+    --serif: "Songti SC", "Noto Serif CJK SC", "Source Han Serif SC", "Source Han Serif CN", STSong, SimSun, serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--serif);
+    font-size: 16.5px;
+    line-height: 1.9;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    opacity: .035;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  a { color: inherit; text-decoration-thickness: 1px; text-underline-offset: 4px; }
+  a:hover { color: var(--accent); }
+
+  .shell {
+    display: grid;
+    grid-template-columns: 168px minmax(0, 1fr);
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 0 40px;
+  }
+
+  /* ---------- 左侧竖排索引 ---------- */
+  .rail {
+    position: sticky;
+    top: 0;
+    align-self: start;
+    height: 100vh;
+    padding: 48px 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-start;
+    z-index: 2;
+  }
+
+  .rail-mark {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .18em;
+    color: var(--muted);
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+  }
+
+  .rail-index {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: .08em;
+  }
+
+  .rail-index a {
+    color: var(--muted);
+    text-decoration: none;
+    display: flex;
+    gap: 6px;
+  }
+
+  .rail-index a:hover { color: var(--accent); }
+  .rail-index em { font-style: normal; color: var(--accent); }
+
+  /* ---------- 抬头 ---------- */
+  header.masthead {
+    padding: 72px 0 0;
+    animation: rise .7s cubic-bezier(.22,.61,.36,1) both;
+  }
+
+  .kicker {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .22em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin: 0 0 28px;
+  }
+
+  h1 {
+    font-size: clamp(56px, 11vw, 132px);
+    line-height: .92;
+    letter-spacing: -.03em;
+    font-weight: 600;
+    margin: 0;
+  }
+
+  .lede {
+    max-width: 640px;
+    margin: 26px 0 0;
+    font-size: 18px;
+    line-height: 1.85;
+    color: var(--ink-soft);
+  }
+
+  .release-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 28px;
+    margin: 44px 0 0;
+    padding: 26px 0;
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .release-num {
+    font-size: clamp(40px, 6vw, 64px);
+    line-height: 1;
+    letter-spacing: -.02em;
+  }
+
+  .release-tag {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .18em;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    padding: 5px 10px;
+  }
+
+  .release-date {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+    margin-left: auto;
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin: 30px 0 0;
+  }
+
+  .btn {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    letter-spacing: .12em;
+    padding: 15px 26px;
+    border: 1px solid var(--ink);
+    background: var(--ink);
+    color: var(--paper);
+    text-decoration: none;
+    transition: background .18s ease, color .18s ease;
+  }
+
+  .btn:hover { background: transparent; color: var(--ink); }
+  .btn.ghost { background: transparent; color: var(--ink); }
+  .btn.ghost:hover { background: var(--ink); color: var(--paper); }
+
+  /* ---------- 参数带 ---------- */
+  .manifest {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    margin: 56px 0 0;
+  }
+
+  .manifest div {
+    padding: 18px 20px 18px 0;
+    border-right: 1px solid var(--rule);
+  }
+
+  .manifest div:last-child { border-right: 0; }
+
+  .manifest dt {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: .16em;
+    color: var(--muted);
+    margin: 0 0 6px;
+  }
+
+  .manifest dd {
+    margin: 0;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    color: var(--ink);
+    word-break: break-all;
+  }
+
+  /* ---------- 正文 ---------- */
+  main { padding: 0 0 40px; }
+
+  section {
+    padding: 72px 0 8px;
+    border-top: 1px solid var(--rule);
+    margin-top: 72px;
+    animation: rise .7s cubic-bezier(.22,.61,.36,1) both;
+    animation-delay: var(--d, 0s);
+  }
+
+  section:first-of-type { border-top: 0; margin-top: 64px; }
+
+  .sec-head {
+    display: flex;
+    align-items: baseline;
+    gap: 18px;
+    margin: 0 0 30px;
+  }
+
+  .sec-num {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .14em;
+    color: var(--accent);
+    padding-top: 6px;
+  }
+
+  h2 {
+    font-size: clamp(26px, 3.4vw, 34px);
+    line-height: 1.3;
+    font-weight: 600;
+    letter-spacing: -.01em;
+    margin: 0;
+  }
+
+  h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 38px 0 10px;
+    letter-spacing: 0;
+  }
+
+  p { margin: 0 0 16px; max-width: 720px; }
+
+  .note {
+    border-left: 3px solid var(--accent);
+    background: var(--accent-wash);
+    padding: 26px 28px;
+    margin: 0 0 26px;
+  }
+
+  .note p { margin: 0 0 12px; }
+  .note p:last-child { margin-bottom: 0; }
+  .note strong { font-weight: 600; }
+
+  .quote-line {
+    font-size: 19px;
+    line-height: 1.85;
+    font-weight: 600;
+    margin: 0 0 14px;
+  }
+
+  ul, ol { margin: 0 0 18px; padding-left: 22px; max-width: 700px; }
+  li { margin-bottom: 8px; }
+  li::marker { color: var(--muted); }
+
+  code {
+    font-family: var(--mono);
+    font-size: .86em;
+    background: var(--paper-2);
+    padding: 2px 6px;
+  }
+
+  pre {
+    font-family: var(--mono);
+    font-size: 12.5px;
+    line-height: 1.8;
+    background: var(--paper-2);
+    border-left: 2px solid var(--rule);
+    padding: 18px 20px;
+    overflow-x: auto;
+    margin: 0 0 20px;
+  }
+
+  pre code { background: none; padding: 0; font-size: inherit; }
+
+  table {
+    width: 100%;
+    max-width: 760px;
+    border-collapse: collapse;
+    margin: 0 0 24px;
+    font-size: 15px;
+  }
+
+  th {
+    text-align: left;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: .14em;
+    color: var(--muted);
+    font-weight: 400;
+    padding: 0 16px 10px 0;
+    border-bottom: 1px solid var(--ink);
+  }
+
+  td {
+    padding: 12px 16px 12px 0;
+    border-bottom: 1px solid var(--rule);
+    vertical-align: top;
+  }
+
+  td:last-child, th:last-child { padding-right: 0; }
+  td.mono { font-family: var(--mono); font-size: 12.5px; word-break: break-all; }
+
+  /* ---------- 结构图 ---------- */
+  .stack {
+    max-width: 720px;
+    margin: 12px 0 26px;
+    border: 1px solid var(--rule);
+  }
+
+  .stack-row {
+    display: grid;
+    grid-template-columns: 132px 1fr;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .stack-row:last-child { border-bottom: 0; }
+
+  .stack-row dt {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: .1em;
+    color: var(--muted);
+    padding: 16px 18px;
+    border-right: 1px solid var(--rule);
+    margin: 0;
+  }
+
+  .stack-row dd {
+    margin: 0;
+    padding: 16px 18px;
+    font-size: 15px;
+  }
+
+  .stack-row dd span {
+    display: block;
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+
+  /* ---------- 页脚 ---------- */
+  footer {
+    border-top: 1px solid var(--rule);
+    margin-top: 80px;
+    padding: 34px 0 72px;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .06em;
+    color: var(--muted);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 28px;
+  }
+
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    html { scroll-behavior: auto; }
+  }
+
+  @media (max-width: 900px) {
+    .shell { grid-template-columns: 1fr; padding: 0 22px; }
+    .rail { display: none; }
+    header.masthead { padding-top: 44px; }
+    section { padding-top: 52px; margin-top: 52px; }
+    .manifest div { border-right: 0; border-bottom: 1px solid var(--rule); }
+    .manifest div:last-child { border-bottom: 0; }
+    .release-date { margin-left: 0; }
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <aside class="rail" aria-label="章节索引">
+    <div class="rail-mark">DSH PRO / 发布说明</div>
+    <nav class="rail-index">
+      <a href="#about"><em>01</em> 关于</a>
+      <a href="#changes"><em>02</em> 本次更新</a>
+      <a href="#install"><em>03</em> 安装</a>
+      <a href="#known"><em>04</em> 已知问题</a>
+      <a href="#verify"><em>05</em> 校验</a>
+      <a href="#license"><em>06</em> 许可与致谢</a>
+    </nav>
+  </aside>
+
+  <div>
+    <header class="masthead">
+      <p class="kicker">Android · DeepSeek Harness · 二次开发</p>
+      <h1>DSH Pro</h1>
+      <p class="lede">
+        把 DeepSeek Harness 装进手机的应用。Flutter 原生界面，纯 Dart 客户端，
+        打补丁的引擎运行时跑在 PRoot 里。本页是 0.1.3 公开测试版本的发布说明。
+      </p>
+
+      <div class="release-row">
+        <div class="release-num">0.1.3</div>
+        <div class="release-tag">预发布</div>
+        <div class="release-date">2026-11-07</div>
+      </div>
+
+      <div class="actions">
+        <a class="btn" href="https://github.com/2997669349awa-blip/DSH_POR/releases/download/v0.1.3/DSH-Pro-0.1.3-arm64-release.apk">下载 arm64 安装包</a>
+        <a class="btn ghost" href="https://github.com/2997669349awa-blip/DSH_POR/releases">全部版本</a>
+      </div>
+
+      <dl class="manifest">
+        <div><dt>版本名</dt><dd>0.1.3</dd></div>
+        <div><dt>版本号</dt><dd>11071105</dd></div>
+        <div><dt>架构</dt><dd>arm64-v8a</dd></div>
+        <div><dt>最低系统</dt><dd>Android 8.0</dd></div>
+        <div><dt>安装包</dt><dd>185 MB</dd></div>
+        <div><dt>签名</dt><dd>v2 + v3</dd></div>
+      </dl>
+    </header>
+
+    <main>
+
+      <section id="about" style="--d:.05s">
+        <div class="sec-head"><span class="sec-num">01</span><h2>关于</h2></div>
+
+        <div class="note">
+          <p class="quote-line">当前为半成品，有很多素材都使用原有素材，可能造成违规风险。</p>
+          <p>
+            具体涉及：应用图标与启动图标里的品牌图形、桌宠「Deepy 小鲸鱼」、桌宠「鲸娘」的表情，
+            以及应用内的鲸鱼尾巴图形。按上游仓库 ASSETS.md 的规定，这些素材不在 AGPL-3.0 的授权范围内，
+            版权归原作者所有，以修改版身份再发布时应当替换成自己的素材。
+          </p>
+          <p>
+            我们暂时没有完成替换，公开发布这一状态是我们考虑不周。在此向原作者与使用者致歉。
+            自有素材已在制作，替换完成后会重新发版，并在版本说明中明确写出替换范围。
+          </p>
+        </div>
+
+        <p>
+          另外两点也需要提前说明。第一，这是公开测试版本，功能与稳定性仍在完善，不建议当作日常主力工具。
+          第二，本次改动只在构建环境中完成编译与签名校验，没有在真机上做完整回归，
+          其中审批浮层的触摸修复尤其需要真机确认。遇到问题请通过 Issue 反馈。
+        </p>
+
+        <p>
+          DSH Pro 是手机端 DeepSeek Harness 的二次开发版本，代码基线取自上游 DSH Go 1.0.11。
+          它的目标不是做一个远程聊天客户端，而是让完整的 agent 运行时在手机上本地跑起来：
+          文件读写、命令执行、联网搜索、插件加载都由手机内的引擎完成，不依赖电脑。
+        </p>
+
+        <dl class="stack">
+          <div class="stack-row">
+            <dt>界面</dt>
+            <dd>Flutter 原生界面<span>会话、审批、用量、设置与插件市场；像素级对齐，深浅色跟随系统。</span></dd>
+          </div>
+          <div class="stack-row">
+            <dt>客户端</dt>
+            <dd>纯 Dart 实现<span>HTTP 与 SSE 连接、多路复用、会话管理；不经过 WebView。</span></dd>
+          </div>
+          <div class="stack-row">
+            <dt>运行时</dt>
+            <dd>PRoot 内的 Linux 环境<span>Ubuntu 基础镜像、Node 24 与打过补丁的 DSH 引擎，随安装包一起分发。</span></dd>
+          </div>
+          <div class="stack-row">
+            <dt>模型</dt>
+            <dd>DeepSeek 官方与自定义渠道<span>支持 OpenAI Completions、Anthropic Messages、Responses 三种协议，填写 Base URL 后可自动拉取模型列表。</span></dd>
+          </div>
+        </dl>
+
+        <p>
+          这个版本与上游的主要差异集中在四件事：品牌改为 DSH Pro；用量面板显示本对话累计消费金额；
+          图标与启动动画增加液态玻璃质感；合并了上游尚未合并的审批浮层触摸修复。
+          插件市场另有独立的兼容版本号处理，避免因为版本号变小而误判插件不支持。
+        </p>
+      </section>
+
+      <section id="changes" style="--d:.1s">
+        <div class="sec-head"><span class="sec-num">02</span><h2>本次更新</h2></div>
+
+        <h3>品牌</h3>
+        <p>
+          应用显示名改为 DSH Pro，桌面图标、最近任务、通知与系统设置中保持一致，中英文及区域语言资源同步。
+          应用内字标与启动画面一并更新。界面文案做了全量清扫，中文 69 处、英文 74 处涉及旧名称的条目全部改完；
+          确需保留的外部指代，例如上游项目名与原作者姓名，不受影响。Android 原生字符串、分享落地页、
+          对话导出网页同步更新，导出文件内嵌的页面已重新生成。
+        </p>
+
+        <h3>关于页</h3>
+        <p>
+          新增「DSH Pro 作者」区块，GitHub 链接指向本仓库所有者；保留「原作者」区块，
+          其中包含原作者的 B 站、X 与 GitHub 三个入口，用于满足上游的署名要求。
+          版本、检查更新、开源许可与免责声明保持原有结构。
+        </p>
+
+        <h3>对话计费</h3>
+        <p>
+          写入 DeepSeek 官方人民币单价，覆盖 deepseek-flash 与 deepseek-v4-pro，
+          含缓存命中、缓存未命中与输出三项。按北京时间自动区分高峰与空闲时段：
+          工作日 09:00 至 12:00、14:00 至 18:00 为高峰，其余时段与周末按空闲价计算。
+          法定节假日没有单独建模，该时段按高峰价估算，因此结果只会偏高，不会偏低。
+        </p>
+        <table>
+          <thead>
+            <tr><th>模型</th><th>时段</th><th>输入（未命中）</th><th>缓存命中</th><th>输出</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>deepseek-flash</td><td>高峰</td><td class="mono">¥2 / 百万</td><td class="mono">¥0.04 / 百万</td><td class="mono">¥8 / 百万</td></tr>
+            <tr><td>deepseek-flash</td><td>空闲</td><td class="mono">¥1 / 百万</td><td class="mono">¥0.02 / 百万</td><td class="mono">¥4 / 百万</td></tr>
+            <tr><td>deepseek-v4-pro</td><td>高峰</td><td class="mono">¥9 / 百万</td><td class="mono">¥0.30 / 百万</td><td class="mono">¥27 / 百万</td></tr>
+            <tr><td>deepseek-v4-pro</td><td>空闲</td><td class="mono">¥4.5 / 百万</td><td class="mono">¥0.15 / 百万</td><td class="mono">¥13.5 / 百万</td></tr>
+          </tbody>
+        </table>
+        <p>
+          用量面板的金额改为「本对话共消费约 ¥x.xx」，保留两位小数；每轮回复的脚注继续显示单轮估算金额。
+          旧模型名 deepseek-v4-flash 与 deepseek-v4-flash-vision-exp 仍按 Flash 价格计算。
+        </p>
+
+        <h3>图标与启动动画</h3>
+        <p>
+          默认图标与「霜白」自适应图标增加液态玻璃质感：左上方向的镜面高光带、光角处的折射光晕、
+          远边的冷色反光。图层用矢量渐变实现，不同分辨率下表现一致。「夜幕」与「墨黑」两个变体保持不变。
+          启动动画的扫光由 34% 宽度、0.26 亮度调整为 42% 宽度、0.34 亮度，扫过时更接近液体反光。
+        </p>
+
+        <h3>审批浮层触摸修复</h3>
+        <p>
+          合并上游修复：底部升起的审批卡不再因为系统遮挡标志而丢弃全部触摸。此前在横屏、切换前后台、
+          存在其他悬浮层时，会出现按钮点不动、没有涟漪、倒计时走完按拒绝处理的现象。
+          改动涉及四个文件：审批浮层卡片、输入策略判定、无障碍控制浮层、桌宠气泡应答键。
+        </p>
+        <p>
+          安全防护没有放宽：延迟启用、输入注入拦截、虚拟设备与可疑笔画判定、TalkBack 判定都保持不变。
+        </p>
+
+        <h3>插件兼容</h3>
+        <p>
+          插件市场以 <code>dshGo.minApp</code> 判断应用版本是否满足要求。版本号改为 0.1.3 之后，
+          所有要求 1.0.x 的插件都会被误判为不支持。为此新增独立的兼容版本号 1.0.11，
+          插件门槛按该值判断，界面与更新仍显示 0.1.3。要求不超过 1.0.11 的插件可以正常安装。
+        </p>
+
+        <h3>更新与 Star</h3>
+        <p>
+          检查更新与「去 GitHub 点 Star」的目标仓库改为
+          <a href="https://github.com/2997669349awa-blip/DSH_POR">2997669349awa-blip/DSH_POR</a>，
+          分享落地页的下载按钮指向本仓库的 releases/latest。
+        </p>
+      </section>
+
+      <section id="install" style="--d:.15s">
+        <div class="sec-head"><span class="sec-num">03</span><h2>安装</h2></div>
+
+        <ol>
+          <li>下载 <code>DSH-Pro-0.1.3-arm64-release.apk</code>。</li>
+          <li>在系统设置中允许本次安装来源安装应用。</li>
+          <li>安装后首次启动会解包内置运行环境，耗时与设备性能有关。</li>
+          <li>覆盖安装需要与旧版本使用同一签名。本版本使用 <code>CN=DSH POR</code> 证书，可以覆盖此前的同签名构建。</li>
+        </ol>
+
+        <p>
+          安装包只包含 arm64-v8a。Android 版本低于 8.0 的设备无法安装。
+          包名刻意保持为 <code>io.github.ccch1mneyyy.dsh_app</code> 未做改动，目的是支持覆盖安装。
+        </p>
+      </section>
+
+      <section id="known" style="--d:.2s">
+        <div class="sec-head"><span class="sec-num">04</span><h2>已知问题</h2></div>
+
+        <ul>
+          <li>品牌素材尚未替换，存在授权风险，详见第一节。</li>
+          <li>审批浮层的触摸修复没有经过真机验证。</li>
+          <li>关于页与启动画面的部分说明文字仍保留上游项目的表述习惯，后续统一。</li>
+          <li>仓库此前没有更早的正式版本，更新检查在未发布新版本时不会提示。</li>
+          <li>内置运行环境约 153 MB，安装包因此偏大，暂未拆分为按需下载。</li>
+        </ul>
+      </section>
+
+      <section id="verify" style="--d:.25s">
+        <div class="sec-head"><span class="sec-num">05</span><h2>校验</h2></div>
+
+        <p>下载后可以自行核对安装包完整性与签名。</p>
+<pre><code>sha256sum DSH-Pro-0.1.3-arm64-release.apk
+15b725c986f4ef1301689765660e86b081951ae0d2425e1e8d4e17499957647a</code></pre>
+
+<pre><code>apksigner verify --print-certs DSH-Pro-0.1.3-arm64-release.apk
+Signer #1 certificate DN: CN=DSH POR, OU=Mobile Dev, O=DSH Studio,
+                            L=Shanghai, ST=Shanghai, C=CN
+Signer #1 certificate SHA-256 digest:
+  15fde491bece67524c74b01c9d9dbeb669bc7a32e5de671c26a7f8ff492fd04c</code></pre>
+
+        <table>
+          <tbody>
+            <tr><td>安装包大小</td><td class="mono">194,211,270 字节</td></tr>
+            <tr><td>签名方案</td><td class="mono">v2 true / v3 true</td></tr>
+            <tr><td>证书主体</td><td class="mono">CN=DSH POR</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="license" style="--d:.3s">
+        <div class="sec-head"><span class="sec-num">06</span><h2>许可与致谢</h2></div>
+
+        <p>
+          主仓库代码以 AGPL-3.0 发布，<code>sdk</code> 与 <code>examples</code> 目录为 MIT，
+          第三方代码与素材以各自声明为准。品牌标识、桌宠形象与鲸鱼系列图形不在 AGPL-3.0 授权范围内，
+          版权归原作者所有，本版本尚未替换，已在第一节说明并致歉。
+        </p>
+
+        <table>
+          <tbody>
+            <tr><td>代码仓库</td><td><a href="https://github.com/2997669349awa-blip/DSH_POR">github.com/2997669349awa-blip/DSH_POR</a></td></tr>
+            <tr><td>上游项目</td><td><a href="https://github.com/ccch1mneyyy/dsh-go">github.com/ccch1mneyyy/dsh-go</a></td></tr>
+            <tr><td>原作者</td><td><a href="https://github.com/ccch1mneyyy">ccch1mneyyy</a></td></tr>
+            <tr><td>运行环境</td><td><a href="https://github.com/deepseek-ai/deepseek-harness">DeepSeek Harness</a></td></tr>
+          </tbody>
+        </table>
+
+        <p>
+          本项目为第三方修改版，与 DeepSeek 及上游作者均无隶属关系，不代表官方版本。
+          上游明确要求以修改版身份发布时标注主仓库与原作者，并替换品牌与吉祥物素材。
+          署名部分已经完成，素材替换尚未完成，这是本版本最主要的遗留工作。
+        </p>
+      </section>
+
+    </main>
+
+    <footer>
+      <span>DSH PRO 0.1.3</span>
+      <span>2026-11-07</span>
+      <span>AGPL-3.0</span>
+      <span>构建 11071105</span>
+    </footer>
+  </div>
+</div>
+</body>
+</html>

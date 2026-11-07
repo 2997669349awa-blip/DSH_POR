@@ -111,6 +111,11 @@
 *.pem
 *.key
 
+# Signing keystores
+*.keystore
+*.jks
+key.properties
+
 # Temporary files
 *.tmp
 *.temp
